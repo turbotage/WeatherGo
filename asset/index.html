@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      #chartdiv {
+        width : 100%;
+        height: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="/socket.io-1.3.7.js"></script>
+    <script src="/jquery-1.11.1.js"></script>
+    <script src="/amcharts/amcharts.js"></script>
+    <script src="/amcharts/serial.js"></script>
+    <script src="/amcharts/plugins/export/export.min.js"></script>
+    <link rel="stylesheet" href="/amcharts/plugins/export/export.css" type="text/css" media="all"/>
+    <script src="/amcharts/themes/light.js"></script>
+
+
+    <script>
+      var socket = io();
+      $('form').submit(function(){
+        socket.emit('chat message with ack', $('#m').val(), function(data){
+          $('#messages').append($('<li>').text('ACK CALLBACK: ' + data));
+        });
+        socket.emit('chat message', $('#m').val());
+        $('#m').val('');
+        return false;
+      });
+      socket.on('chat message', function(msg){
+        $('#messages').append($('<li>').text(msg));
+      });
+    </script>
+  </body>
+</html>
