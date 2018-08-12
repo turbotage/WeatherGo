@@ -1,117 +1,72 @@
 package fetcher
 
 import (
-	"flag"
+	"log"
 	"time"
-	"math"
 
-	"github.com/cfreeman/embd"
-	_ "github.com/cfreeman/embd/host/rpi" // This loads the RPi driver
+	"github.com/tarm/serial"
 )
 
-const sleepTime = 5  //seconds
-const sleepCycles = 60 //number of cycles
-
-var anemometerPinNum uint8
-var anemometerPin InterruptPin
-var anemometerCount uint32
-
-var rainbucketPinNum uint8
-var rainbucketPin InterruptPin
-var rainbucketCount uint32
-
-
-//bme280 stuff
-var bme280 BME80
-
-var temperatureSum float32
-var pressureSum float32
-var humiditySum float32
-
-//interrupts
-func setupInterrupts() {
-	//anemometer
-	anemometerPin, err = embd.NewDigitalPin(anemometerPinNum)
-	if err != nil {
-		panic(err)
-	}
-
-	err = anemometerPin.SetDirection(embd.In)
-	if err != nil {
-		panic(err)
-	}
-	anemometerPin.ActiveLow(false)
-
-	anemometerPin.Watch(embd.EdgeFalling, func() {
-		anemometerCount++
-	})
-
-	//rainbucket
-	rainbucketPin, err = embd.NewDigitalPin(rainbucketPinNum)
-	if err != nil {
-		panic(err)
-	}
-
-	err = rainbucketPin.SetDirection(embd.In)
-	if err != nil {
-		panic(err)
-	}
-	rainbucketPin.ActiveLow(false)
-
-	rainbucketPin.Watch(embd.EdgeFalling, func() {
-		rainbucketCount++
-	}}
+/* the type used to begin fetching */
+type FetchingInfo struct {
+	ip               string
+	port             string
+	user             string
+	password         string
+	dbname           string
+	serialname       string
+	baud             int
+	rainupdatetime   int //in seconds
+	windupdatetime   int //in seconds
+	bme280updatetime int //in seconds
 }
 
-func endInterrupts() {
-	anemometerPin.StopWatch()
-	anemometerPin.Close()
-
-	rainbucketPin.StopWatch()
-	rainbucketPin.Close()
-}
-
-
-
-
-func zeroValues() {
-	zeroWindDir()
-
-
-
-	temperatureSum = 0
-	pressureSum = 0
-	humiditySum = 0
+func serialReadLine() {
 
 }
 
-func cycleUpdate() {
-	updateWindDirs()
+func rainFetch() {
+
 }
 
-func finalizeCycleResults() {
-	degree, dirName := finalWindDir()
+func windUpdate() {
+
 }
 
-func BeginFetching() {
-	flag.Parse()
+func gustUpdate() {
 
-	if err := embd.InitGPIO(); err != nil {
-		panic(err)
-	}
-	defer embd.CloseGPIO()
+}
 
-	setupInterrupts()
-	defer endInterrupts()
+func bme280Update() {
 
-	for j := 0; true; j++ {
-		//one cycle
-		zeroValues()
-		for i := 0; i < 60; i++ {
-			cycleUpdate()
+}
+
+func fetchCycle(fI FetchingInfo) {
+	done := false
+	for i := 1; done; i++ {
+		if (i % fI.rainupdatetime) == 0 {
+			rainFetch()
 		}
-		finalizeCycleResults()
+		if (i % fI.windupdatetime) == 0 {
+			windUpdate()
+			gustUpdate()
+		}
+		if (i % fI.bme280updatetime) == 0 {
+			bme280Update()
+		}
+		time.Sleep(time.Second)
+	}
+}
+
+/* "BeginFetching the function used to begin fetching" */
+func BeginFetching(fetchingInfo FetchingInfo) {
+
+	c := &serial.Config{Name: fetchingInfo.serialname, Baud: fetchingInfo.baud}
+	serialport, err := serial.OpenPort(c)
+	if err != nil {
+		log.Fatal(err)
 	}
 
+	time.Sleep(5 * time.Millisecond)
 
 }

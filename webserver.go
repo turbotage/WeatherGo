@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+
 	"log"
 	"net/http"
 
@@ -9,7 +11,15 @@ import (
 	"github.com/googollee/go-socket.io"
 )
 
+var DataBaseInfo struct {
+	var ip string;
+	var port string;
+	var user string;
+	var password string
+}
+
 func runWebserver() {
+
 	server, err := socketio.NewServer(nil)
 	if err != nil {
 		log.Fatal(err)
@@ -43,6 +53,12 @@ func runWebserver() {
 
 func main() {
 
+	var ip = flag.String("database_ip", "127.0.0.1", "the ip to the database")
+	var port = flag.String("database_port", "5555", "the port to the database")
+	var user = flag.String("database_username", "turbotage", "the username to the database")
+	var password = flag.String("database_password", "1234", "the password to the database")
+	var dbname = flag.String("database_name", "weatherstation", "the database name")
+ 
 	go fetcher.BeginFetch()
 
 	runWebserver()
