@@ -1,24 +1,19 @@
-package main
+package server
 
 import (
 	"flag"
-
 	"log"
 	"net/http"
-
-	"WeatherGo/fetcher"
-
-	"github.com/googollee/go-socket.io"
 )
 
-var DataBaseInfo struct {
-	var ip string;
-	var port string;
-	var user string;
-	var password string
-}
+/* Begins the web server*/
+func BeginServer() {
 
-func runWebserver() {
+	var ip = flag.String("database_ip", "127.0.0.1", "the ip to the database")
+	var port = flag.String("database_port", "5555", "the port to the database")
+	var user = flag.String("database_username", "turbotage", "the username to the database")
+	var password = flag.String("database_password", "1234", "the password to the database")
+	var dbname = flag.String("database_name", "weatherstation", "the database name")
 
 	server, err := socketio.NewServer(nil)
 	if err != nil {
@@ -49,17 +44,4 @@ func runWebserver() {
 	http.Handle("/", http.FileServer(http.Dir("./asset")))
 	log.Println("Serving at localhost:5000...")
 	log.Fatal(http.ListenAndServe(":5000", nil))
-}
-
-func main() {
-
-	var ip = flag.String("database_ip", "127.0.0.1", "the ip to the database")
-	var port = flag.String("database_port", "5555", "the port to the database")
-	var user = flag.String("database_username", "turbotage", "the username to the database")
-	var password = flag.String("database_password", "1234", "the password to the database")
-	var dbname = flag.String("database_name", "weatherstation", "the database name")
- 
-	go fetcher.BeginFetch()
-
-	runWebserver()
 }

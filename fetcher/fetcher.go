@@ -1,24 +1,29 @@
 package fetcher
 
 import (
+	"encoding/binary"
+	"fmt"
 	"log"
+	"math"
 	"time"
+
+	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/tarm/serial"
 )
 
-/* the type used to begin fetching */
-type FetchingInfo struct {
-	ip               string
-	port             string
-	user             string
-	password         string
-	dbname           string
-	serialname       string
-	baud             int
-	rainupdatetime   int //in seconds
-	windupdatetime   int //in seconds
-	bme280updatetime int //in seconds
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func bytesToFloat(bytes []byte) float32 {
+	bits := binary.LittleEndian.Uint32(bytes)
+	float := math.Float32frombits(bits)
+	return float
 }
 
 func serialReadLine() {
@@ -29,15 +34,25 @@ func rainFetch() {
 
 }
 
-func windUpdate() {
+func windFetch() {
 
 }
 
-func gustUpdate() {
+// Wind Direction, Wind Speed, Gust
+func fetchWind(serial *serial.Port, db *sql.DB) {
+
+	buf := make([]byte, 128)
+
+	n, err := serial.Write([]byte("1"))
+	check(err)
+	n, err = serial.Read(buf)
+	check(err)
+	fmt.Println(n)
+	fmt.Println("%q", buf[:n])
 
 }
 
-func bme280Update() {
+func bme280Fetch() {
 
 }
 
@@ -48,8 +63,8 @@ func fetchCycle(fI FetchingInfo) {
 			rainFetch()
 		}
 		if (i % fI.windupdatetime) == 0 {
-			windUpdate()
-			gustUpdate()
+			windFetch()
+			gustFetch()
 		}
 		if (i % fI.bme280updatetime) == 0 {
 			bme280Update()
@@ -67,6 +82,20 @@ func BeginFetching(fetchingInfo FetchingInfo) {
 		log.Fatal(err)
 	}
 
+	/*
+		dbname := "tcp(127.0.0.1:3306)/weather"
+		db, err := sql.Open("mysql", "turbotage:klassuger@"+dbname)
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer db.Close()
+
+		// Check that the database can be reached
+		err = db.Ping()
+		if err != nil {
+			fmt.Println(err)
+		}
+	*/
 	time.Sleep(5 * time.Millisecond)
 
 }
