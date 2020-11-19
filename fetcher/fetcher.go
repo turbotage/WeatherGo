@@ -3,7 +3,6 @@ package fetcher
 import (
 	"encoding/binary"
 	"fmt"
-	"log"
 	"math"
 	"sync"
 	"time"
@@ -76,7 +75,7 @@ func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud 
 	c := &serial.Config{Name: serialname, Baud: baud}
 	s, err := serial.OpenPort(c)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	db, err := sql.Open("mysql", "turbotage:"+password+"@"+"tcp(127.0.0.1:3306)/weather")
