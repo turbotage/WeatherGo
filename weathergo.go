@@ -1,4 +1,4 @@
-package main
+package weather
 
 import (
 	"WeatherGo/fetcher"
@@ -6,7 +6,7 @@ import (
 
 func main() {
 
-	go fetcher.BeginFetch()
+	go fetcher.BeginFetch("Weather!212", "/dev/ttyACM0", 9600)
 
 	//go server.BeginServer()
 }

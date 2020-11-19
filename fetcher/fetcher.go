@@ -26,76 +26,73 @@ func bytesToFloat(bytes []byte) float32 {
 	return float
 }
 
-func serialReadLine() {
+func serialReadLine(s *serial.Port, db *sql.DB) {
 
 }
 
-func rainFetch() {
-
-}
-
-func windFetch() {
+func rainFetch(s *serial.Port, db *sql.DB) {
 
 }
 
 // Wind Direction, Wind Speed, Gust
-func fetchWind(serial *serial.Port, db *sql.DB) {
+func fetchWind(s *serial.Port, db *sql.DB) {
 
 	buf := make([]byte, 128)
 
-	n, err := serial.Write([]byte("1"))
+	n, err := s.Write([]byte("1"))
 	check(err)
-	n, err = serial.Read(buf)
+	n, err = s.Read(buf)
 	check(err)
 	fmt.Println(n)
 	fmt.Println("%q", buf[:n])
 
 }
 
-func bme280Fetch() {
+func bme280Fetch(s *serial.Port, db *sql.DB) {
 
 }
 
-func fetchCycle(fI FetchingInfo) {
+func fetchCycle(s *serial.Port, db *sql.DB) {
 	done := false
 	for i := 1; done; i++ {
-		if (i % fI.rainupdatetime) == 0 {
-			rainFetch()
+		if (i % 1800) == 0 {
+			rainFetch(s, db)
 		}
-		if (i % fI.windupdatetime) == 0 {
-			windFetch()
-			gustFetch()
+		if (i % 600) == 0 {
+			fetchWind(s, db)
 		}
-		if (i % fI.bme280updatetime) == 0 {
-			bme280Update()
+		if (i % 600) == 0 {
+			bme280Fetch(s, db)
 		}
 		time.Sleep(time.Second)
 	}
 }
 
 /* "BeginFetching the function used to begin fetching" */
-func BeginFetching(fetchingInfo FetchingInfo) {
+func BeginFetching(password string, serialname string, baud int) {
 
-	c := &serial.Config{Name: fetchingInfo.serialname, Baud: fetchingInfo.baud}
-	serialport, err := serial.OpenPort(c)
+	c := &serial.Config{Name: serialname, Baud: baud}
+	s, err := serial.OpenPort(c)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	/*
-		dbname := "tcp(127.0.0.1:3306)/weather"
-		db, err := sql.Open("mysql", "turbotage:klassuger@"+dbname)
-		if err != nil {
-			fmt.Println(err)
-		}
-		defer db.Close()
+	db, err := sql.Open("mysql", "turbotage:"+password+"@"+"tcp(127.0.0.1:3306)/weather")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer db.Close()
 
-		// Check that the database can be reached
-		err = db.Ping()
-		if err != nil {
-			fmt.Println(err)
-		}
-	*/
+	// Check that the database can be reached
+	err = db.Ping()
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	time.Sleep(5 * time.Millisecond)
+
+	time.Sleep(2 * time.Second)
+
+	fetchWind(s, db)
 
 }
