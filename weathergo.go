@@ -1,4 +1,4 @@
-package weather
+package main
 
 import (
 	"github.com/turbotage/WeatherGo/fetcher"
