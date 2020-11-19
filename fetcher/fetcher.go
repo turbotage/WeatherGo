@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"sync"
 	"time"
 
 	"database/sql"
@@ -69,7 +70,8 @@ func fetchCycle(s *serial.Port, db *sql.DB) {
 }
 
 /* "BeginFetching the function used to begin fetching" */
-func BeginFetching(password string, serialname string, baud int) {
+func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud int) {
+	defer wg.Done()
 
 	c := &serial.Config{Name: serialname, Baud: baud}
 	s, err := serial.OpenPort(c)

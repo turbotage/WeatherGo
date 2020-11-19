@@ -1,12 +1,16 @@
 package main
 
 import (
+	"sync"
+
 	"github.com/turbotage/WeatherGo/fetcher"
 )
 
 func main() {
 
-	go fetcher.BeginFetching("Weather!212", "/dev/ttyACM0", 9600)
+	var wg sync.WaitGroup
+
+	go fetcher.BeginFetching(&wg, "Weather!212", "/dev/ttyACM0", 9600)
 
 	//go server.BeginServer()
 }
