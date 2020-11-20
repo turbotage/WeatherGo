@@ -130,9 +130,10 @@ func bme280Fetch(s *serial.Port, db *sql.DB) {
 	check(err)
 }
 
-func fetchCycle(s *serial.Port, db *sql.DB) {
+func fetchCycle(wg *sync.WaitGroup, s *serial.Port, db *sql.DB) {
+	defer wg.Done()
 	done := false
-	for i := 1; done; i++ {
+	for i := 0; done; i += 10 {
 		if (i % 1800) == 0 {
 			rainFetch(s, db)
 		}
@@ -142,13 +143,12 @@ func fetchCycle(s *serial.Port, db *sql.DB) {
 		if (i % 600) == 0 {
 			bme280Fetch(s, db)
 		}
-		time.Sleep(time.Second)
+		time.Sleep(10 * time.Second)
 	}
 }
 
 /* "BeginFetching the function used to begin fetching" */
 func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud int) {
-	defer wg.Done()
 
 	c := &serial.Config{Name: serialname, Baud: baud}
 	s, err := serial.OpenPort(c)
