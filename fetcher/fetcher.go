@@ -115,7 +115,7 @@ func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud 
 		fmt.Println(err)
 	}
 
-	db, err := sql.Open("mysql", "turbotage:"+password+"@"+"tcp(127.0.0.1:3306)/weather")
+	db, err := sql.Open("mysql", "weatherusr:"+password+"@"+"tcp(127.0.0.1:3306)/weather")
 	if err != nil {
 		fmt.Println(err)
 	}
