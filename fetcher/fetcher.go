@@ -39,7 +39,7 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 
 	buf := make([]byte, 128)
 
-	n, err := s.Write([]byte("1"))
+	n, err := s.Write([]byte("4"))
 	check(err)
 	n, err = s.Read(buf)
 	check(err)
