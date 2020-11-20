@@ -28,65 +28,106 @@ func bytesToFloat(bytes []byte) float32 {
 	return float
 }
 
-func serialReadLine(s *serial.Port, db *sql.DB) {
-
-}
-
 func rainFetch(s *serial.Port, db *sql.DB) {
+	currentTime := time.Now()
+	timestring := "'" + currentTime.Format("2006-01-02:15:04:05") + "'"
+
+	reader := bufio.NewReader(s)
+
+	time.Sleep(5 * time.Microsecond)
+	_, err := s.Write([]byte("7"))
+	check(err)
+	reply, err := reader.ReadBytes('\x0a')
+	rain := string(reply)
+
+	stmt, err := db.Prepare("insert into rainfall (datetime,value) values(?,?)")
+	check(err)
+	_, err = stmt.Exec(timestring, rain)
+	check(err)
 
 }
 
 // Wind Direction, Wind Speed, Gust
 func fetchWind(s *serial.Port, db *sql.DB) {
+	currentTime := time.Now()
+	timestring := "'" + currentTime.Format("2006-01-02:15:04:05") + "'"
 
 	reader := bufio.NewReader(s)
 
-	n, err := s.Write([]byte("1"))
-	fmt.Println(n)
+	time.Sleep(5 * time.Microsecond)
+	// Wind Direction
+	_, err := s.Write([]byte("4"))
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
-	fmt.Println(string(reply))
+	wind := string(reply)
 
-	n, err = s.Write([]byte("2"))
-	fmt.Println(n)
+	time.Sleep(5 * time.Microsecond)
+	// Wind
+	_, err = s.Write([]byte("5"))
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(string(reply))
+	direction := string(reply)
 
-	n, err = s.Write([]byte("3"))
-	fmt.Println(n)
+	stmt, err := db.Prepare("insert into wind (datetime,wind,direction) values(?,?,?)")
+	check(err)
+	_, err = stmt.Exec(timestring, wind, direction)
+	check(err)
+
+	time.Sleep(5 * time.Microsecond)
+	// Gust
+	_, err = s.Write([]byte("6"))
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(string(reply))
+	gust := string(reply)
 
-	n, err = s.Write([]byte("4"))
-	fmt.Println(n)
+	stmt, err = db.Prepare("insert into gust (datetime,wind,direction) values(?,?)")
 	check(err)
-	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(string(reply))
-
-	n, err = s.Write([]byte("5"))
-	fmt.Println(n)
+	_, err = stmt.Exec(timestring, gust)
 	check(err)
-	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(string(reply))
-
-	n, err = s.Write([]byte("6"))
-	fmt.Println(n)
-	check(err)
-	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(string(reply))
-
-	n, err = s.Write([]byte("7"))
-	fmt.Println(n)
-	check(err)
-	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(string(reply))
 
 }
 
 func bme280Fetch(s *serial.Port, db *sql.DB) {
+	currentTime := time.Now()
+	timestring := "'" + currentTime.Format("2006-01-02:15:04:05") + "'"
 
+	reader := bufio.NewReader(s)
+
+	time.Sleep(5 * time.Microsecond)
+	// Humidity
+	_, err := s.Write([]byte("1"))
+	check(err)
+	reply, err := reader.ReadBytes('\x0a')
+	value := string(reply)
+
+	stmt, err := db.Prepare("insert into humidity (datetime,value) values(?,?)")
+	check(err)
+	_, err = stmt.Exec(timestring, value)
+	check(err)
+
+	time.Sleep(5 * time.Microsecond)
+	// Pressure
+	_, err = s.Write([]byte("2"))
+	check(err)
+	reply, err = reader.ReadBytes('\x0a')
+	value = string(reply)
+
+	stmt, err = db.Prepare("insert into pressure (datetime,value) values(?,?)")
+	check(err)
+	_, err = stmt.Exec(timestring, value)
+	check(err)
+
+	time.Sleep(5 * time.Microsecond)
+	// Temperature
+	_, err = s.Write([]byte("3"))
+	check(err)
+	reply, err = reader.ReadBytes('\x0a')
+	value = string(reply)
+
+	stmt, err = db.Prepare("insert into temperature (datetime,value) values(?,?)")
+	check(err)
+	_, err = stmt.Exec(timestring, value)
+	check(err)
 }
 
 func fetchCycle(s *serial.Port, db *sql.DB) {
@@ -127,10 +168,8 @@ func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud 
 		fmt.Println(err)
 	}
 
-	time.Sleep(5 * time.Millisecond)
-
 	time.Sleep(2 * time.Second)
 
-	fetchWind(s, db)
+	fetchCycle(s, db)
 
 }
