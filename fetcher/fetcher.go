@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
+	"strconv"
 	"sync"
 	"time"
 
@@ -28,23 +29,51 @@ func bytesToFloat(bytes []byte) float32 {
 	return float
 }
 
-func fetchRain(s *serial.Port, db *sql.DB) {
+// Humidity, Pressure, Temperature
+func fetchBME280(s *serial.Port, db *sql.DB) {
 	currentTime := time.Now()
 	timestring := currentTime.Format("2006-01-02:15:04:05")
 
 	reader := bufio.NewReader(s)
 
 	time.Sleep(5 * time.Microsecond)
-	_, err := s.Write([]byte("7"))
+	// Humidity
+	_, err := s.Write([]byte("1"))
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
-	rain := string(reply)
+	f, _ := strconv.ParseFloat(string(reply), 32)
+	value := float32(f)
 
-	stmt, err := db.Prepare("insert into rainfall (datetime,value) values(?,?)")
+	stmt, err := db.Prepare("insert into humidity (datetime,value) values(?,?)")
 	check(err)
-	_, err = stmt.Exec(timestring, rain)
+	_, err = stmt.Exec(timestring, value)
 	check(err)
 
+	time.Sleep(5 * time.Microsecond)
+	// Pressure
+	_, err = s.Write([]byte("2"))
+	check(err)
+	reply, err = reader.ReadBytes('\x0a')
+	f, _ = strconv.ParseFloat(string(reply), 32)
+	value = float32(f)
+
+	stmt, err = db.Prepare("insert into pressure (datetime,value) values(?,?)")
+	check(err)
+	_, err = stmt.Exec(timestring, value)
+	check(err)
+
+	time.Sleep(5 * time.Microsecond)
+	// Temperature
+	_, err = s.Write([]byte("3"))
+	check(err)
+	reply, err = reader.ReadBytes('\x0a')
+	f, _ = strconv.ParseFloat(string(reply), 32)
+	value = float32(f)
+
+	stmt, err = db.Prepare("insert into temperature (datetime,value) values(?,?)")
+	check(err)
+	_, err = stmt.Exec(timestring, value)
+	check(err)
 }
 
 // Wind Direction, Wind Speed, Gust
@@ -59,14 +88,16 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	_, err := s.Write([]byte("4"))
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
-	wind := string(reply)
+	f, _ := strconv.ParseFloat(string(reply), 32)
+	wind := float32(f)
 
 	time.Sleep(5 * time.Microsecond)
 	// Wind
 	_, err = s.Write([]byte("5"))
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	direction := string(reply)
+	f, _ = strconv.ParseFloat(string(reply), 32)
+	direction := float32(f)
 
 	stmt, err := db.Prepare("insert into wind (datetime,wind,direction) values(?,?,?)")
 	check(err)
@@ -78,7 +109,8 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	_, err = s.Write([]byte("6"))
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	gust := string(reply)
+	f, _ = strconv.ParseFloat(string(reply), 32)
+	gust := float32(f)
 
 	stmt, err = db.Prepare("insert into gust (datetime,gust) values(?,?)")
 	check(err)
@@ -87,47 +119,25 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 
 }
 
-func fetchBME280(s *serial.Port, db *sql.DB) {
+// Rainfall
+func fetchRain(s *serial.Port, db *sql.DB) {
 	currentTime := time.Now()
 	timestring := currentTime.Format("2006-01-02:15:04:05")
 
 	reader := bufio.NewReader(s)
 
 	time.Sleep(5 * time.Microsecond)
-	// Humidity
-	_, err := s.Write([]byte("1"))
+	_, err := s.Write([]byte("7"))
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
-	value := string(reply)
+	f, _ := strconv.ParseFloat(string(reply), 32)
+	rain := float32(f)
 
-	stmt, err := db.Prepare("insert into humidity (datetime,value) values(?,?)")
+	stmt, err := db.Prepare("insert into rainfall (datetime,value) values(?,?)")
 	check(err)
-	_, err = stmt.Exec(timestring, value)
-	check(err)
-
-	time.Sleep(5 * time.Microsecond)
-	// Pressure
-	_, err = s.Write([]byte("2"))
-	check(err)
-	reply, err = reader.ReadBytes('\x0a')
-	value = string(reply)
-
-	stmt, err = db.Prepare("insert into pressure (datetime,value) values(?,?)")
-	check(err)
-	_, err = stmt.Exec(timestring, value)
+	_, err = stmt.Exec(timestring, rain)
 	check(err)
 
-	time.Sleep(5 * time.Microsecond)
-	// Temperature
-	_, err = s.Write([]byte("3"))
-	check(err)
-	reply, err = reader.ReadBytes('\x0a')
-	value = string(reply)
-
-	stmt, err = db.Prepare("insert into temperature (datetime,value) values(?,?)")
-	check(err)
-	_, err = stmt.Exec(timestring, value)
-	check(err)
 }
 
 /* "BeginFetching the function used to begin fetching" */
