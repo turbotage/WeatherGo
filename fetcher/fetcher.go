@@ -45,43 +45,43 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	fmt.Println(n)
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
-	fmt.Println(reply)
+	fmt.Println(string(reply))
 
 	n, err = s.Write([]byte("2"))
 	fmt.Println(n)
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(reply)
+	fmt.Println(string(reply))
 
 	n, err = s.Write([]byte("3"))
 	fmt.Println(n)
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(reply)
+	fmt.Println(string(reply))
 
 	n, err = s.Write([]byte("4"))
 	fmt.Println(n)
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(reply)
+	fmt.Println(string(reply))
 
 	n, err = s.Write([]byte("5"))
 	fmt.Println(n)
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(reply)
+	fmt.Println(string(reply))
 
 	n, err = s.Write([]byte("6"))
 	fmt.Println(n)
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(reply)
+	fmt.Println(string(reply))
 
 	n, err = s.Write([]byte("7"))
 	fmt.Println(n)
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(reply)
+	fmt.Println(string(reply))
 
 }
 
