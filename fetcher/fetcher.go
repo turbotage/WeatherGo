@@ -39,13 +39,48 @@ func rainFetch(s *serial.Port, db *sql.DB) {
 // Wind Direction, Wind Speed, Gust
 func fetchWind(s *serial.Port, db *sql.DB) {
 
-	buf := make([]byte, 128)
 	reader := bufio.NewReader(s)
 
-	n, err := s.Write([]byte("4"))
+	n, err := s.Write([]byte("1"))
 	fmt.Println(n)
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
+	fmt.Println(reply)
+
+	n, err = s.Write([]byte("2"))
+	fmt.Println(n)
+	check(err)
+	reply, err = reader.ReadBytes('\x0a')
+	fmt.Println(reply)
+
+	n, err = s.Write([]byte("3"))
+	fmt.Println(n)
+	check(err)
+	reply, err = reader.ReadBytes('\x0a')
+	fmt.Println(reply)
+
+	n, err = s.Write([]byte("4"))
+	fmt.Println(n)
+	check(err)
+	reply, err = reader.ReadBytes('\x0a')
+	fmt.Println(reply)
+
+	n, err = s.Write([]byte("5"))
+	fmt.Println(n)
+	check(err)
+	reply, err = reader.ReadBytes('\x0a')
+	fmt.Println(reply)
+
+	n, err = s.Write([]byte("6"))
+	fmt.Println(n)
+	check(err)
+	reply, err = reader.ReadBytes('\x0a')
+	fmt.Println(reply)
+
+	n, err = s.Write([]byte("7"))
+	fmt.Println(n)
+	check(err)
+	reply, err = reader.ReadBytes('\x0a')
 	fmt.Println(reply)
 
 }
