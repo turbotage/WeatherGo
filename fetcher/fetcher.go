@@ -41,10 +41,7 @@ func fetchBME280(s *serial.Port, db *sql.DB) {
 	_, err := s.Write([]byte("1"))
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
-	fmt.Println(reply)
-	fmt.Println(reply[:len(reply)-2])
-	fmt.Println(string(reply[:len(reply)-2]))
-	f, _ := strconv.ParseFloat(string(reply), 32)
+	f, _ := strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
 	value := float32(f)
 
 	stmt, err := db.Prepare("insert into humidity (datetime,value) values(?,?)")
@@ -57,7 +54,7 @@ func fetchBME280(s *serial.Port, db *sql.DB) {
 	_, err = s.Write([]byte("2"))
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	f, _ = strconv.ParseFloat(string(reply), 32)
+	f, _ = strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
 	value = float32(f)
 
 	stmt, err = db.Prepare("insert into pressure (datetime,value) values(?,?)")
@@ -70,7 +67,7 @@ func fetchBME280(s *serial.Port, db *sql.DB) {
 	_, err = s.Write([]byte("3"))
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	f, _ = strconv.ParseFloat(string(reply), 32)
+	f, _ = strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
 	value = float32(f)
 
 	stmt, err = db.Prepare("insert into temperature (datetime,value) values(?,?)")
@@ -91,7 +88,7 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	_, err := s.Write([]byte("4"))
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
-	f, _ := strconv.ParseFloat(string(reply), 32)
+	f, _ := strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
 	wind := float32(f)
 
 	time.Sleep(5 * time.Microsecond)
@@ -99,7 +96,7 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	_, err = s.Write([]byte("5"))
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	f, _ = strconv.ParseFloat(string(reply), 32)
+	f, _ = strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
 	direction := float32(f)
 
 	stmt, err := db.Prepare("insert into wind (datetime,wind,direction) values(?,?,?)")
@@ -112,7 +109,7 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	_, err = s.Write([]byte("6"))
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	f, _ = strconv.ParseFloat(string(reply), 32)
+	f, _ = strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
 	gust := float32(f)
 
 	stmt, err = db.Prepare("insert into gust (datetime,value) values(?,?)")
@@ -133,7 +130,7 @@ func fetchRain(s *serial.Port, db *sql.DB) {
 	_, err := s.Write([]byte("7"))
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
-	f, _ := strconv.ParseFloat(string(reply), 32)
+	f, _ := strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
 	rain := float32(f)
 
 	stmt, err := db.Prepare("insert into rainfall (datetime,value) values(?,?)")
