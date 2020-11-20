@@ -1,10 +1,9 @@
-package fetcher
+package main
 
 import (
 	"encoding/binary"
 	"fmt"
 	"math"
-	"sync"
 	"time"
 
 	"database/sql"
@@ -132,8 +131,7 @@ func fetchBME280(s *serial.Port, db *sql.DB) {
 
 /* "BeginFetching the function used to begin fetching" */
 //wg *sync.WaitGroup
-func BeginFetching(doneFetching chan bool, wg *sync.WaitGroup, password string, serialname string, baud int) {
-	//defer wg.Done()
+func beginFetching(password string, serialname string, baud int) {
 
 	c := &serial.Config{Name: serialname, Baud: baud}
 	s, err := serial.OpenPort(c)
@@ -170,6 +168,8 @@ func BeginFetching(doneFetching chan bool, wg *sync.WaitGroup, password string, 
 		time.Sleep(10 * time.Second)
 	}
 
-	doneFetching <- true
+}
 
+func main() {
+	beginFetching("Weather!212", "/dev/ttyACM0", 9600)
 }
