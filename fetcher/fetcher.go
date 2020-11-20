@@ -41,10 +41,9 @@ func fetchBME280(s *serial.Port, db *sql.DB) {
 	_, err := s.Write([]byte("1"))
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
-	fmt.Println(string(reply))
+	fmt.Println(reply)
 	f, _ := strconv.ParseFloat(string(reply), 32)
 	value := float32(f)
-	fmt.Println(value)
 
 	stmt, err := db.Prepare("insert into humidity (datetime,value) values(?,?)")
 	check(err)
@@ -56,10 +55,8 @@ func fetchBME280(s *serial.Port, db *sql.DB) {
 	_, err = s.Write([]byte("2"))
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(string(reply))
 	f, _ = strconv.ParseFloat(string(reply), 32)
 	value = float32(f)
-	fmt.Println(value)
 
 	stmt, err = db.Prepare("insert into pressure (datetime,value) values(?,?)")
 	check(err)
@@ -74,7 +71,6 @@ func fetchBME280(s *serial.Port, db *sql.DB) {
 	fmt.Println(string(reply))
 	f, _ = strconv.ParseFloat(string(reply), 32)
 	value = float32(f)
-	fmt.Println(value)
 
 	stmt, err = db.Prepare("insert into temperature (datetime,value) values(?,?)")
 	check(err)
