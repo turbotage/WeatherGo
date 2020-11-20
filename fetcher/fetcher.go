@@ -42,6 +42,8 @@ func fetchBME280(s *serial.Port, db *sql.DB) {
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
 	fmt.Println(reply)
+	fmt.Println(reply[:len(reply)-2])
+	fmt.Println(string(reply[:len(reply)-2]))
 	f, _ := strconv.ParseFloat(string(reply), 32)
 	value := float32(f)
 
@@ -68,7 +70,6 @@ func fetchBME280(s *serial.Port, db *sql.DB) {
 	_, err = s.Write([]byte("3"))
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
-	fmt.Println(string(reply))
 	f, _ = strconv.ParseFloat(string(reply), 32)
 	value = float32(f)
 
