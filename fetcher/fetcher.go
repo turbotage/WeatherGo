@@ -45,6 +45,7 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	check(err)
 	fmt.Println(n)
 	fmt.Println("%q", buf[:n])
+	fmt.Println(string(buf))
 
 }
 
