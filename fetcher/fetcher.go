@@ -158,12 +158,12 @@ func BeginFetching(doneFetching chan bool, wg *sync.WaitGroup, password string, 
 	fmt.Println("in fetch cycle")
 	done := false
 	for i := 0; done; i += 10 {
-		if (i % 600) == 0 {
+		if (i % 60) == 0 {
 			fmt.Println("fetching BME280 and Wind")
 			fetchBME280(s, db)
 			fetchWind(s, db)
 		}
-		if (i % 1800) == 0 {
+		if (i % 180) == 0 {
 			fmt.Println("fetching rain")
 			fetchRain(s, db)
 		}
