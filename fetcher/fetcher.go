@@ -170,6 +170,6 @@ func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud 
 
 	time.Sleep(2 * time.Second)
 
-	fetchCycle(s, db)
+	fetchCycle(wg, s, db)
 
 }
