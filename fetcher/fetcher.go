@@ -11,6 +11,8 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
+	"bufio"
+
 	"github.com/tarm/serial"
 )
 
@@ -38,14 +40,13 @@ func rainFetch(s *serial.Port, db *sql.DB) {
 func fetchWind(s *serial.Port, db *sql.DB) {
 
 	buf := make([]byte, 128)
+	reader := bufio.NewReader(s)
 
 	n, err := s.Write([]byte("4"))
-	check(err)
-	n, err = s.Read(buf)
-	check(err)
 	fmt.Println(n)
-	fmt.Println("%q", buf[:n])
-	fmt.Println(string(buf))
+	check(err)
+	reply, err := reader.ReadBytes('\x0a')
+	fmt.Println(reply)
 
 }
 
