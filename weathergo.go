@@ -12,10 +12,14 @@ func main() {
 	var wg sync.WaitGroup
 
 	fmt.Println("starting to fetch...")
+
+	doneFetching := make(chan bool, 1)
 	wg.Add(1)
-	go fetcher.BeginFetching(&wg, "Weather!212", "/dev/ttyACM0", 9600)
+	go fetcher.BeginFetching(done_fetching, "Weather!212", "/dev/ttyACM0", 9600)
 
 	fmt.Println("Main: Waiting for workers to finish")
 	wg.Wait()
 	fmt.Println("Main: Completed")
+
+	<-doneFetching
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
-	"sync"
 	"time"
 
 	"database/sql"
@@ -130,27 +129,10 @@ func bme280Fetch(s *serial.Port, db *sql.DB) {
 	check(err)
 }
 
-func fetchCycle(wg *sync.WaitGroup, s *serial.Port, db *sql.DB) {
-	defer wg.Done()
-	fmt.Println("in fetch cycle")
-	done := false
-	for i := 0; done; i += 10 {
-		if (i % 1800) == 0 {
-			rainFetch(s, db)
-		}
-		if (i % 600) == 0 {
-			fetchWind(s, db)
-		}
-		if (i % 600) == 0 {
-			bme280Fetch(s, db)
-		}
-		time.After(10 * time.Second)
-	}
-
-}
-
 /* "BeginFetching the function used to begin fetching" */
-func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud int) {
+//wg *sync.WaitGroup
+func BeginFetching(doneFetching chan bool, password string, serialname string, baud int) {
+	//defer wg.Done()
 
 	c := &serial.Config{Name: serialname, Baud: baud}
 	s, err := serial.OpenPort(c)
@@ -172,6 +154,21 @@ func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud 
 
 	time.After(2 * time.Second)
 
-	fetchCycle(wg, s, db)
+	fmt.Println("in fetch cycle")
+	done := false
+	for i := 0; done; i += 10 {
+		if (i % 1800) == 0 {
+			rainFetch(s, db)
+		}
+		if (i % 600) == 0 {
+			fetchWind(s, db)
+		}
+		if (i % 600) == 0 {
+			bme280Fetch(s, db)
+		}
+		time.After(10 * time.Second)
+	}
+
+	doneFetching <- true
 
 }
