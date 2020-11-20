@@ -147,21 +147,15 @@ func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud 
 
 	c := &serial.Config{Name: serialname, Baud: baud}
 	s, err := serial.OpenPort(c)
-	if err != nil {
-		fmt.Println(err)
-	}
+	check(err)
 
 	db, err := sql.Open("mysql", "weatherusr:"+password+"@"+"tcp(127.0.0.1:3306)/weather")
-	if err != nil {
-		fmt.Println(err)
-	}
+	check(err)
 	defer db.Close()
 
 	// Check that the database can be reached
 	err = db.Ping()
-	if err != nil {
-		fmt.Println(err)
-	}
+	check(err)
 
 	time.Sleep(1 * time.Second)
 

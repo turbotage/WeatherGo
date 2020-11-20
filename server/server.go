@@ -1,47 +1,52 @@
 package server
 
 import (
-	"flag"
+	"fmt"
 	"log"
 	"net/http"
+	"sync"
+
+	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
+
+	socketio "github.com/googollee/go-socket.io"
 )
 
-/* Begins the web server*/
-func BeginServer() {
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
 
-	var ip = flag.String("database_ip", "127.0.0.1", "the ip to the database")
-	var port = flag.String("database_port", "5555", "the port to the database")
-	var user = flag.String("database_username", "turbotage", "the username to the database")
-	var password = flag.String("database_password", "1234", "the password to the database")
-	var dbname = flag.String("database_name", "weatherstation", "the database name")
+/* BeginServer the web server*/
+func BeginServer(wg *sync.WaitGroup, password string) {
+	defer wg.Done()
+
+	db, err := sql.Open("mysql", "weatherusr:"+password+"@"+"tcp(127.0.0.1:3306)/weather")
+	check(err)
+	defer db.Close()
+
+	rows, err := db.Query("select * from wind")
+	check(err)
+
+	columns, err := rows.Columns()
+	check(err)
+	fmt.Println(columns)
+	fmt.Println(columns[0])
 
 	server, err := socketio.NewServer(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	check(err)
 
-	server.On("connection", func(so socketio.Socket) {
-		log.Println("on connection")
-		so.Join("chat")
-		so.On("weather:query_windspeed", func(msg string) {
-			log.Println(msg)
-		})
-
-		so.On("weather:query_windspeedmax", func(msg string) {
-
-		})
-
-		so.On("disconnection", func() {
-			log.Println("on disconnect")
-		})
-	})
-
-	server.On("error", func(so socketio.Socket, err error) {
-		log.Println("error:", err)
+	server.OnConnect("/", func(s socketio.Conn) error {
+		s.SetContext("")
+		fmt.Println("connected", s.ID())
+		return nil
 	})
 
 	http.Handle("/socket.io/", server)
 	http.Handle("/", http.FileServer(http.Dir("./asset")))
 	log.Println("Serving at localhost:5000...")
 	log.Fatal(http.ListenAndServe(":5000", nil))
+
 }
