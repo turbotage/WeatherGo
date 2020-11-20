@@ -30,7 +30,7 @@ func bytesToFloat(bytes []byte) float32 {
 
 func fetchRain(s *serial.Port, db *sql.DB) {
 	currentTime := time.Now()
-	timestring := "'" + currentTime.Format("2006-01-02:15:04:05") + "'"
+	timestring := currentTime.Format("2006-01-02:15:04:05")
 
 	reader := bufio.NewReader(s)
 
@@ -50,7 +50,7 @@ func fetchRain(s *serial.Port, db *sql.DB) {
 // Wind Direction, Wind Speed, Gust
 func fetchWind(s *serial.Port, db *sql.DB) {
 	currentTime := time.Now()
-	timestring := "'" + currentTime.Format("2006-01-02:15:04:05") + "'"
+	timestring := currentTime.Format("2006-01-02:15:04:05")
 
 	reader := bufio.NewReader(s)
 
@@ -89,7 +89,7 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 
 func fetchBME280(s *serial.Port, db *sql.DB) {
 	currentTime := time.Now()
-	timestring := "'" + currentTime.Format("2006-01-02:15:04:05") + "'"
+	timestring := currentTime.Format("2006-01-02:15:04:05")
 
 	reader := bufio.NewReader(s)
 
