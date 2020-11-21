@@ -23,6 +23,9 @@ func check(err error) {
 func BeginServer(wg *sync.WaitGroup, password string) {
 	defer wg.Done()
 
+	server, err := socketio.NewServer(nil)
+	check(err)
+
 	db, err := sql.Open("mysql", "weatherusr:"+password+"@"+"tcp(127.0.0.1:3306)/weather")
 	check(err)
 	defer db.Close()
@@ -35,9 +38,6 @@ func BeginServer(wg *sync.WaitGroup, password string) {
 	fmt.Println(columns)
 	fmt.Println(columns[0])
 
-	server, err := socketio.NewServer(nil)
-	check(err)
-
 	server.OnConnect("/", func(s socketio.Conn) error {
 		s.SetContext("")
 		fmt.Println("connected", s.ID())
@@ -45,7 +45,7 @@ func BeginServer(wg *sync.WaitGroup, password string) {
 	})
 
 	http.Handle("/socket.io/", server)
-	http.Handle("/", http.FileServer(http.Dir("./asset")))
+	http.Handle("/", http.FileServer(http.Dir("/asset")))
 	log.Println("Serving at localhost:5000...")
 	log.Fatal(http.ListenAndServe(":5000", nil))
 
