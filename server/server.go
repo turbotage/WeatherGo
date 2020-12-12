@@ -1,10 +1,10 @@
-package server
+package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
 
 	"database/sql"
 
@@ -18,8 +18,7 @@ func check(err error) {
 }
 
 /* BeginServer the web server*/
-func BeginServer(wg *sync.WaitGroup, password string) {
-	defer wg.Done()
+func beginServer(password string) {
 
 	db, err := sql.Open("mysql", "weatherusr:"+password+"@"+"tcp(127.0.0.1:3306)/weather")
 	check(err)
@@ -38,4 +37,16 @@ func BeginServer(wg *sync.WaitGroup, password string) {
 	log.Println("Serving at localhost:5000...")
 	log.Fatal(http.ListenAndServe(":5000", nil))
 
+}
+
+func main() {
+	var password = flag.String("database_password", "1234", "the password to the database")
+
+	flag.Parse()
+
+	fmt.Println("Server: Starting")
+
+	beginServer(*password)
+
+	fmt.Println("Server: Completed")
 }

@@ -1,7 +1,8 @@
-package fetcher
+package main
 
 import (
 	"encoding/binary"
+	"flag"
 	"fmt"
 	"math"
 	"strconv"
@@ -142,7 +143,7 @@ func fetchRain(s *serial.Port, db *sql.DB) {
 
 /* "BeginFetching the function used to begin fetching" */
 //wg *sync.WaitGroup
-func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud int) {
+func beginFetching(wg *sync.WaitGroup, password string, serialname string, baud int) {
 	defer wg.Done()
 
 	c := &serial.Config{Name: serialname, Baud: baud}
@@ -173,4 +174,17 @@ func BeginFetching(wg *sync.WaitGroup, password string, serialname string, baud 
 		time.Sleep(10 * time.Second)
 	}
 
+}
+
+func main() {
+	var password = flag.String("database_password", "1234", "the password to the database")
+	var serialname = flag.String("serial_port", "/dev/ttyACM0", "the serial port to use for fetching")
+
+	flag.Parse()
+
+	fmt.Println("Fetcher: Starting")
+
+	beginFetching(&wg, *password, *serialname, 9600)
+
+	fmt.Println("Fetcher: Completed")
 }
