@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math"
 	"strconv"
-	"sync"
 	"time"
 
 	"database/sql"
@@ -143,8 +142,7 @@ func fetchRain(s *serial.Port, db *sql.DB) {
 
 /* "BeginFetching the function used to begin fetching" */
 //wg *sync.WaitGroup
-func beginFetching(wg *sync.WaitGroup, password string, serialname string, baud int) {
-	defer wg.Done()
+func beginFetching(password string, serialname string, baud int) {
 
 	c := &serial.Config{Name: serialname, Baud: baud}
 	s, err := serial.OpenPort(c)
@@ -184,7 +182,7 @@ func main() {
 
 	fmt.Println("Fetcher: Starting")
 
-	beginFetching(&wg, *password, *serialname, 9600)
+	beginFetching(*password, *serialname, 9600)
 
 	fmt.Println("Fetcher: Completed")
 }
