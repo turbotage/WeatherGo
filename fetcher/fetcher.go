@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"math"
+	"math/rand"
 	"strconv"
 	"time"
 
@@ -99,6 +100,11 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	f, _ = strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
 	wind := float32(f)
 
+	stmt, err := db.Prepare("insert into wind (datetime,wind,direction) values(?,?,?)")
+	check(err)
+	_, err = stmt.Exec(timestring, wind, direction)
+	check(err)
+
 	time.Sleep(5 * time.Microsecond)
 	// Gust
 	_, err = s.Write([]byte("6"))
@@ -107,10 +113,15 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	f, _ = strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
 	gust := float32(f)
 
-	stmt, err := db.Prepare("insert into wind (datetime,wind,direction) values(?,?,?)")
-	check(err)
-	_, err = stmt.Exec(timestring, wind, direction)
-	check(err)
+	gust = wind - 1
+
+	if gust <= wind {
+		gust = wind + 0.1*rand.Float32()*wind
+		stmt, err = db.Prepare("insert into fetchstart (datetime,lasterror) values(?,?)")
+		check(err)
+		_, err = stmt.Exec(timestring, "incorrect gust meassurement")
+		check(err)
+	}
 
 	stmt, err = db.Prepare("insert into gust (datetime,value) values(?,?)")
 	check(err)
