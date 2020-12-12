@@ -170,7 +170,7 @@ func beginFetching(password string, serialname string, baud int) {
 	time.Sleep(1 * time.Second)
 
 	fmt.Println("in fetch cycle")
-	for i := 0; true; i += 10 {
+	for i := 10; true; i += 10 {
 		if (i % 300) == 0 {
 			fmt.Println("fetching BME280 and Wind")
 			fetchBME280(s, db)
