@@ -89,7 +89,7 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	check(err)
 	reply, err := reader.ReadBytes('\x0a')
 	f, _ := strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
-	wind := float32(f)
+	direction := float32(f)
 
 	time.Sleep(5 * time.Microsecond)
 	// Wind
@@ -97,12 +97,7 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	check(err)
 	reply, err = reader.ReadBytes('\x0a')
 	f, _ = strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
-	direction := float32(f)
-
-	stmt, err := db.Prepare("insert into wind (datetime,wind,direction) values(?,?,?)")
-	check(err)
-	_, err = stmt.Exec(timestring, wind, direction)
-	check(err)
+	wind := float32(f)
 
 	time.Sleep(5 * time.Microsecond)
 	// Gust
@@ -111,6 +106,11 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 	reply, err = reader.ReadBytes('\x0a')
 	f, _ = strconv.ParseFloat(string(reply[:len(reply)-2]), 32)
 	gust := float32(f)
+
+	stmt, err := db.Prepare("insert into wind (datetime,wind,direction) values(?,?,?)")
+	check(err)
+	_, err = stmt.Exec(timestring, wind, direction)
+	check(err)
 
 	stmt, err = db.Prepare("insert into gust (datetime,value) values(?,?)")
 	check(err)
@@ -182,7 +182,7 @@ func main() {
 
 	fmt.Println("Fetcher: Starting")
 
-	beginFetching(*password, *serialname, 9600)
+	beginFetching(*password, *serialname, 19200)
 
 	fmt.Println("Fetcher: Completed")
 }
