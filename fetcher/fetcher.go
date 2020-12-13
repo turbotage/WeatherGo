@@ -117,10 +117,10 @@ func fetchWind(s *serial.Port, db *sql.DB) {
 
 	if gust <= wind {
 		gust = wind + 0.1*rand.Float32()*wind
-		stmt, err = db.Prepare("insert into fetchstart (datetime,lasterror) values(?,?)")
-		check(err)
-		_, err = stmt.Exec(timestring, "incorrect gust meassurement")
-		check(err)
+		//stmt, err = db.Prepare("insert into fetchstart (datetime,lasterror) values(?,?)")
+		//check(err)
+		//_, err = stmt.Exec(timestring, "incorrect gust meassurement")
+		/check(err)
 	}
 
 	stmt, err = db.Prepare("insert into gust (datetime,value) values(?,?)")
@@ -186,9 +186,9 @@ func beginFetching(password string, serialname string, baud int) {
 }
 
 func main() {
-	var password = flag.String("database_password", "1234", "the password to the database")
-	var serialname = flag.String("serial_port", "/dev/ttyACM0", "the serial port to use for fetching")
 
+	password := flag.String("database_password", "1234", "the password to the database")
+	serialname := flag.String("serial_port", "/dev/ttyACM0", "the serial port to use for fetching")
 	flag.Parse()
 
 	fmt.Println("Fetcher: Starting")
